@@ -39,6 +39,9 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Box color="white" mr={4}>
                     {data.me.username}
                 </Box>
+                <NextLink href="/create-post">
+                    <Link color="white">Create new post</Link>
+                </NextLink>
                 <Button
                     color="white"
                     onClick={() => logout()}
@@ -51,7 +54,7 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
     }
 
     return (
-        <Flex bg="tomato" p={4} ml={"auto"}>
+        <Flex bg="tomato"position="sticky" zIndex={1} top={0}  p={4} ml={"auto"}>
             <Box ml="auto">{body}</Box>
         </Flex>
     );

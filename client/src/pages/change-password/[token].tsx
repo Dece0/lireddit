@@ -11,7 +11,7 @@ import { createUrqlClient } from "../../utils/createUrlqClient";
 import { toErrorMap } from "../../utils/toErrorMap";
 import NextLink from "next/link";
 
-const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
+const ChangePassword: NextPage = () => {
     const [, changePassword] = useChangePasswordMutation();
     const router = useRouter();
     const [tokenError, setTokenError] = useState("");
@@ -24,7 +24,10 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                     onSubmit={async ({ newPassword }, { setErrors }) => {
                         const resp = await changePassword({
                             newPassword,
-                            token,
+                            token:
+                                typeof router.query.token === "string"
+                                    ? router.query.token
+                                    : "",
                         });
 
                         if (resp.data?.changePassword.errors) {
@@ -60,9 +63,7 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
                                     </Box>
                                     <Box>
                                         <NextLink href="/forgot-password">
-                                            <Link>
-                                                Go forget it again
-                                            </Link>
+                                            <Link>Go forget it again</Link>
                                         </NextLink>
                                     </Box>
                                 </Box>
@@ -82,12 +83,6 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
             </Wrapper>
         </>
     );
-};
-
-ChangePassword.getInitialProps = ({ query }) => {
-    return {
-        token: query.token as string,
-    };
 };
 
 export default withUrqlClient(createUrqlClient, { ssr: false })(ChangePassword);
