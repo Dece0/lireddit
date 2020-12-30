@@ -39,22 +39,36 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
                 <Box color="white" mr={4}>
                     {data.me.username}
                 </Box>
-                <NextLink href="/create-post">
-                    <Link color="white">Create new post</Link>
-                </NextLink>
-                <Button
+                <Box mr={4}>
+                    <NextLink href="/create-post">
+                        <Link color="white">Create new post</Link>
+                    </NextLink>
+                </Box>
+                <Link
                     color="white"
                     onClick={() => logout()}
                     isLoading={logoutFetching}
                 >
                     Logout
-                </Button>
+                </Link>
             </Flex>
         );
     }
 
     return (
-        <Flex bg="tomato"position="sticky" zIndex={1} top={0}  p={4} ml={"auto"}>
+        <Flex
+            bg="tomato"
+            position="sticky"
+            zIndex={1}
+            top={0}
+            p={4}
+            ml={"auto"}
+        >
+            <Box>
+                <NextLink href="/">
+                    <Link color="white">LiReddit</Link>
+                </NextLink>
+            </Box>
             <Box ml="auto">{body}</Box>
         </Flex>
     );
