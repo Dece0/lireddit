@@ -108,10 +108,16 @@ export class PostResolver {
     ): Promise<PaginatedPosts> {
         const realLimit = Math.min(50, limit);
         const realLimitPlusOne = realLimit + 1;
-        const replacements: any[] = [realLimitPlusOne, req.session.userId];
+        const replacements: any[] = [realLimitPlusOne];
 
+        if (req.session.userId) {
+            replacements.push(req.session.userId);
+        }
+
+        let cursorIdx = 3;
         if (cursor) {
             replacements.push(new Date(+cursor));
+            cursorIdx = replacements.length;
         }
 
         // const posts = await Post.find({
@@ -144,7 +150,7 @@ export class PostResolver {
             }
             from post p
             inner join public.user u on u.id = p."creatorId"
-            ${cursor ? `where p."createdAt" < $3` : ""}
+            ${cursor ? `where p."createdAt" < $${cursorIdx}` : ""}
             order by p."createdAt" DESC
             limit $1
         `,
@@ -159,7 +165,7 @@ export class PostResolver {
 
     @Query(() => Post, { nullable: true })
     post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-        return Post.findOne(id);
+        return Post.findOne(id, { relations: ["creator"] });
     }
 
     @Mutation(() => Post)
@@ -196,8 +202,12 @@ export class PostResolver {
     }
 
     @Mutation(() => Boolean)
-    async deletePost(@Arg("id") id: number): Promise<boolean> {
-        await Post.delete(id);
+    @UseMiddleware(isAuth)
+    async deletePost(
+        @Arg("id", () => Int) id: number,
+        @Ctx() { req }: MyContext
+    ): Promise<boolean> {
+        await Post.delete({ id, creatorId: req.session.userId });
         return true;
     }
 }

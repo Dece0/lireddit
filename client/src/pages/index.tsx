@@ -1,4 +1,4 @@
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import { ChevronDownIcon, ChevronUpIcon, DeleteIcon } from "@chakra-ui/icons";
 import {
     Alert,
     AlertIcon,
@@ -7,16 +7,19 @@ import {
     Center,
     Flex,
     Heading,
+    IconButton,
+    Link,
     Spinner,
     Stack,
     Text,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
+import NextLink from "next/link";
 import React from "react";
 import { useState } from "react";
 import Layout from "../components/Layout";
 import { UpdootSection } from "../components/UpdootSection";
-import { usePostsQuery } from "../generated/graphql";
+import { usePostsQuery, useDeletePostMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrlqClient";
 
 const Index = () => {
@@ -27,6 +30,8 @@ const Index = () => {
     const [{ data, fetching }] = usePostsQuery({
         variables,
     });
+
+    const [, deletePost] = useDeletePostMutation();
 
     if (!data && !fetching) {
         return (
@@ -55,9 +60,29 @@ const Index = () => {
                         <Flex key={post.id} p={5} shadow="md" borderWidth="1px">
                             <UpdootSection post={post} />
                             <Box>
-                                <Heading fontSize="xl">{post.title}</Heading>
+                                <NextLink
+                                    href="/post/[id]"
+                                    as={`/post/${post.id}`}
+                                >
+                                    <Link>
+                                        <Heading fontSize="xl">
+                                            {post.title}
+                                        </Heading>
+                                    </Link>
+                                </NextLink>
+
                                 <Text>Posted by {post.creator.username}</Text>
                                 <Text mt={4}>{post.textSnippet}</Text>
+                                <IconButton
+                                    icon={<DeleteIcon />}
+                                    aria-label="Delete post"
+                                    colorScheme="red"
+                                    onClick={() => {
+                                        deletePost({
+                                            id: post.id
+                                        })
+                                    }}
+                                />
                             </Box>
                         </Flex>
                     ))}
